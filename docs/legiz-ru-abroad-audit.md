@@ -68,6 +68,8 @@ For Abroad profiles, prefer our narrow bundles:
 
 - `Abroad/ozon.list`
 - `Abroad/yandex.list`
+- `Abroad/mailru.list`
+- `Abroad/vk.list`
 - `Abroad/rutube.list`
 - `Abroad/mts.list`
 - `Abroad/tbank.list`
