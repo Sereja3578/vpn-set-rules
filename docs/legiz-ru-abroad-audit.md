@@ -71,7 +71,7 @@ For Abroad profiles, prefer our narrow bundles:
 - `Abroad/rutube.list`
 - `Abroad/mts.list`
 - `Abroad/tbank.list`
-- `Abroad/ru-tlds.list`
+- `Common/ru-tlds.list`
 
 Treat `legiz-ru` `ru-bundle` as a Russia anti-block source, not as an Abroad
 Russian-services source.

@@ -48,6 +48,10 @@ DOMAIN-KEYWORD,example
 IP-CIDR,203.0.113.0/24
 ```
 
+Prefer exact `DOMAIN` or scoped `DOMAIN-SUFFIX` rules. Use `DOMAIN-KEYWORD`
+only when there is no reasonable suffix/domain alternative, because it can
+duplicate narrower rules and match unrelated domains.
+
 This format is usable as:
 
 - `behavior: classical`, `format: text` in Clash/Mihomo.
@@ -60,6 +64,12 @@ rules are evaluated top to bottom and the first match wins.
 Do not use broad Russia anti-block bundles as Abroad Russian-service bundles.
 If a broad source contains useful entries, extract only the needed service niche
 into a narrow bundle. See `docs/legiz-ru-abroad-audit.md`.
+
+Before committing bundle changes, run:
+
+```sh
+scripts/check-bundles.zsh
+```
 
 ## Sources checked
 
