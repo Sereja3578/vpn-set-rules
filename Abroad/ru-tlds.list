@@ -1,0 +1,5 @@
+# Broad Russian TLD rules for abroad profiles.
+# Keep this bundle after narrower service bundles.
+DOMAIN-SUFFIX,ru
+DOMAIN-SUFFIX,su
+DOMAIN-SUFFIX,xn--p1ai
