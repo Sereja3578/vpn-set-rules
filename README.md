@@ -69,7 +69,13 @@ Before committing bundle changes, run:
 
 ```sh
 scripts/check-bundles.zsh
+scripts/check-dns-sanity.zsh
 ```
+
+`check-dns-sanity.zsh` checks exact `DOMAIN,<host>` rules for live DNS answers.
+It intentionally does not check `DOMAIN-SUFFIX` rules: a root domain can have
+no A record while its subdomains still work. This helps catch stale renamed
+hosts before they become hard-to-debug fake-IP failures in VPN clients.
 
 ## Sources checked
 
