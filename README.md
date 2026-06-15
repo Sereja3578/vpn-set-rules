@@ -65,17 +65,35 @@ Do not use broad Russia anti-block bundles as Abroad Russian-service bundles.
 If a broad source contains useful entries, extract only the needed service niche
 into a narrow bundle. See `docs/legiz-ru-abroad-audit.md`.
 
+## Routing model
+
+- Abroad profile: Russian services -> `RU-SITES` / `RU-PROXY`; global services
+  -> `DIRECT` unless a service has its own reason to use a foreign proxy.
+- Russia profile: Russian services and ordinary Russian TLDs -> `DIRECT`;
+  global services restricted in Russia -> `PROXY` / `LOW-RESTRICT-FOREIGN`.
+- Broad anti-block sources such as `legiz-ru` `ru-bundle` must never be routed
+  to a Russian proxy in Abroad profiles. In Russia profiles, if kept at all,
+  place it after direct Russian-service/TLD rules and route it to a foreign
+  proxy, because it mostly represents "things that may need anti-block routing
+  from inside Russia", not "Russian services".
+
 Before committing bundle changes, run:
 
 ```sh
 scripts/check-bundles.zsh
 scripts/check-dns-sanity.zsh
+scripts/check-client-routing.zsh
 ```
 
 `check-dns-sanity.zsh` checks exact `DOMAIN,<host>` rules for live DNS answers.
 It intentionally does not check `DOMAIN-SUFFIX` rules: a root domain can have
 no A record while its subdomains still work. This helps catch stale renamed
 hosts before they become hard-to-debug fake-IP failures in VPN clients.
+
+`check-client-routing.zsh` checks the sibling Clash Verge, Stash, and
+Shadowrocket example repositories for the route-order invariants that prevent
+foreign services from being sent to a Russian exit in Abroad profiles, and broad
+anti-block bundles from being sent direct in Russia profiles.
 
 ## Sources checked
 

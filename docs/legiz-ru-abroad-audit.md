@@ -77,3 +77,14 @@ For Abroad profiles, prefer our narrow bundles:
 
 Treat `legiz-ru` `ru-bundle` as a Russia anti-block source, not as an Abroad
 Russian-services source.
+
+For Russia profiles, do not place `ru-bundle` as `DIRECT` above foreign-service
+proxy exceptions. That sends domains such as `whatsapp.net`, `linkedin.com`,
+`discord.com`, `x.com`, and `openai.com` directly from Russia, where they are
+blocked, restricted, or unsupported. If a Russia profile keeps `ru-bundle`, use
+it as a late broad `PROXY` fallback after:
+
+- curated foreign-service bundles (`Common/openai.list`, `Common/whatsapp.list`,
+  `Common/linkedin.list`, `Common/discord.list`, `Common/twitter-x.list`, etc.);
+- Russian blocked/sensitive exceptions that should use `PROXY`;
+- direct Russian service bundles and broad Russian TLD direct rules.
