@@ -55,6 +55,8 @@ done
 for file in $abroad_yaml; do
   assert_absent "$file" 'RULE-SET,ru-bundle,RU' "abroad-broad-ru-bundle-routed-to-ru"
   assert_absent "$file" 'RULE-SET,rknasnblock,RU' "abroad-rknasnblock-routed-to-ru"
+  assert_present "$file" 'RULE-SET,common-openai,DIRECT' "abroad-missing-openai-direct"
+  assert_present "$file" 'RULE-SET,common-bybit-low-restrict,LOW-RESTRICT-FOREIGN' "abroad-missing-bybit-low-restrict"
   for provider in common-whatsapp common-linkedin common-discord common-twitter-x common-google-ai; do
     assert_present "$file" "RULE-SET,${provider},DIRECT" "abroad-missing-foreign-direct-$provider"
   done
@@ -71,6 +73,8 @@ for file in $russia_yaml; do
 done
 
 assert_absent "$abroad_sr" 'ru-bundle.*RU' "shadowrocket-abroad-broad-ru-bundle-routed-to-ru"
+assert_present "$abroad_sr" 'Common/openai.list,DIRECT' "shadowrocket-abroad-missing-openai-direct"
+assert_present "$abroad_sr" 'Common/bybit-low-restrict.list,LOW-RESTRICT-FOREIGN' "shadowrocket-abroad-missing-bybit-low-restrict"
 for list in whatsapp linkedin discord twitter-x google-ai; do
   assert_present "$abroad_sr" "Common/${list}.list,DIRECT" "shadowrocket-abroad-missing-direct-$list"
   assert_present "$russia_sr" "Common/${list}.list,PROXY" "shadowrocket-russia-missing-proxy-$list"
