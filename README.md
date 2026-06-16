@@ -83,6 +83,7 @@ Before committing bundle changes, run:
 scripts/check-bundles.zsh
 scripts/check-dns-sanity.zsh
 scripts/check-client-routing.zsh
+scripts/check-macos-resolv-conf.zsh
 ```
 
 `check-dns-sanity.zsh` checks exact `DOMAIN,<host>` rules for live DNS answers.
@@ -94,6 +95,17 @@ hosts before they become hard-to-debug fake-IP failures in VPN clients.
 Shadowrocket example repositories for the route-order invariants that prevent
 foreign services from being sent to a Russian exit in Abroad profiles, and broad
 anti-block bundles from being sent direct in Russia profiles.
+
+`check-macos-resolv-conf.zsh` is a local macOS preflight for TUN/DNS clients. If
+`/etc/resolv.conf` is missing, Mihomo-based clients can fail DNS resolution even
+when normal macOS apps still resolve names. Fix the host with:
+
+```sh
+sudo ln -sf /var/run/resolv.conf /etc/resolv.conf
+```
+
+This is a system prerequisite, not a portable rule-set entry, so it cannot be
+solved inside Clash/Stash/Shadowrocket YAML alone.
 
 ## Sources checked
 
