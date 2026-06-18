@@ -107,6 +107,10 @@ sudo ln -sf /var/run/resolv.conf /etc/resolv.conf
 This is a system prerequisite, not a portable rule-set entry, so it cannot be
 solved inside Clash/Stash/Shadowrocket YAML alone.
 
+For coexistence with an enterprise VPN, including corporate split DNS and a
+local `DIRECT` exception ahead of broader public-domain bundles, see
+`docs/enterprise-vpn-coexistence.md`.
+
 ## Sources checked
 
 - Mihomo rule-provider docs: https://wiki.metacubex.one/en/config/rule-providers/
