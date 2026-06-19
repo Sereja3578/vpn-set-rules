@@ -1,0 +1,6 @@
+# Russian services that may reject common cloud/VPN exits.
+# Keep exact domains so the same file can also drive the router DNS updater.
+DOMAIN,gosuslugi.ru
+DOMAIN,www.gosuslugi.ru
+DOMAIN,esia.gosuslugi.ru
+DOMAIN,lk.gosuslugi.ru
