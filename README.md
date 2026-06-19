@@ -84,6 +84,7 @@ scripts/check-bundles.zsh
 scripts/check-dns-sanity.zsh
 scripts/check-client-routing.zsh
 scripts/check-macos-resolv-conf.zsh
+scripts/check-enterprise-vpn-coexistence.zsh
 ```
 
 `check-dns-sanity.zsh` checks exact `DOMAIN,<host>` rules for live DNS answers.
@@ -107,9 +108,15 @@ sudo ln -sf /var/run/resolv.conf /etc/resolv.conf
 This is a system prerequisite, not a portable rule-set entry, so it cannot be
 solved inside Clash/Stash/Shadowrocket YAML alone.
 
-For coexistence with an enterprise VPN, including corporate split DNS and a
-local `DIRECT` exception ahead of broader public-domain bundles, see
+For coexistence with an enterprise VPN, including corporate split DNS,
+a local `DIRECT` exception ahead of broader public-domain bundles, and correct
+handling of private networks by the macOS TUN route, see
 `docs/enterprise-vpn-coexistence.md`.
+
+`check-enterprise-vpn-coexistence.zsh` checks this coexistence pattern for
+clients running together with enterprise VPNs such as Cisco Secure Client /
+AnyConnect. It verifies that corporate private networks are not excluded from
+the TUN route while still bypassing the proxy engine.
 
 ## Sources checked
 
