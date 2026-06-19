@@ -39,7 +39,7 @@ fi
 trap cleanup EXIT HUP INT TERM
 
 download_rules() {
-  if command -v curl >/dev/null 2>&1; then
+  if which curl >/dev/null 2>&1; then
     curl -fsSL --connect-timeout 10 --max-time 30 "$RULESET_URL" -o "$TMP_PREFIX.rules"
   else
     wget -q -T 30 -O "$TMP_PREFIX.rules" "$RULESET_URL"
@@ -82,9 +82,13 @@ if [ ! -s "$TMP_PREFIX.ips" ]; then
 fi
 
 [ -r "$STATE_FILE" ] || : > "$STATE_FILE"
+SOURCE_IP=${SOURCE_CIDR%/32}
 
 while IFS= read -r ip; do
-  grep -qxF "$ip" "$STATE_FILE" && continue
+  if grep -qxF "$ip" "$STATE_FILE" \
+    && ip rule show | grep -qF "from $SOURCE_IP to $ip lookup $ROUTE_TABLE"; then
+    continue
+  fi
   ip rule add priority "$RULE_PRIORITY" from "$SOURCE_CIDR" to "$ip/32" table "$ROUTE_TABLE" \
     || logger -t ru-restricted-routes "failed to add route for $ip"
 done < "$TMP_PREFIX.ips"
