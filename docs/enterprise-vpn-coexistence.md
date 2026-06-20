@@ -92,25 +92,27 @@ routing policy.
 
 ## Portable profile pattern
 
-Keep real company suffixes and DNS addresses in a private/local profile. Replace
-the placeholders below with values supplied by the enterprise VPN:
+Keep real company suffixes in a private local rule-set that is not published by
+this repository. A Stash/Mihomo profile can load that file as a local static
+provider:
 
 ```yaml
-dns:
-  nameserver-policy:
-    "+.corp.example":
-      - 10.0.0.53
-      - 10.0.0.54
+rule-providers:
+  corporate-local:
+    behavior: classical
+    format: text
+    path: ./rules/private/corporate-local.list
 
 rules:
-  # This exception must precede broader public-domain or service bundles.
-  - DOMAIN-SUFFIX,corp.example,DIRECT
+  # This rule-set must precede broader public-domain or service bundles.
+  - RULE-SET,corporate-local,DIRECT
 ```
 
-`nameserver-policy` selects the corporate resolver for the suffix. The earlier
-`DIRECT` rule keeps the resulting private destination on the Cisco route instead
-of a general proxy group. Private DNS addresses must already be reachable through
-the enterprise VPN.
+The private file contains the actual `DOMAIN` / `DOMAIN-SUFFIX` entries. The
+earlier `RULE-SET` keeps the resulting private destination on the Cisco route
+instead of a general proxy group. Corporate split DNS should remain owned by the
+enterprise VPN or by a separate private local DNS configuration; do not copy
+company suffixes or DNS addresses into public examples.
 
 Do not publish real corporate domains, DNS addresses, credentials, provider
 URLs, or full managed profiles in reusable examples.
