@@ -118,6 +118,24 @@ clients running together with enterprise VPNs such as Cisco Secure Client /
 AnyConnect. It verifies that corporate private networks are not excluded from
 the TUN route while still bypassing the proxy engine.
 
+## Asuswrt-Merlin router status
+
+`scripts/asuswrt-merlin-route-rule-set.sh` can maintain source-and-destination
+`ip rule` entries for exact `DOMAIN` rules on an Asuswrt-Merlin router. It also
+writes a read-only status snapshot to RAM at
+`/www/user/ru-restricted-services-status.js` after each successful refresh.
+
+The optional WebUI files are:
+
+- `scripts/asuswrt-merlin-ru-route-status.asp` - the read-only status page;
+- `scripts/asuswrt-merlin-install-ru-route-status.sh` - an idempotent Addons API
+  installer that mounts the page as a `Tools` tab.
+
+The page displays the source client, routing table/interface, active rule count,
+and the current domain-to-IPv4 mapping. It has no Apply action and does not edit
+VPN Director, NVRAM, or OpenVPN client state. Call the installer from
+`/jffs/scripts/services-start` so the RAM-backed page is restored after reboot.
+
 ## Sources checked
 
 - Mihomo rule-provider docs: https://wiki.metacubex.one/en/config/rule-providers/
@@ -126,3 +144,4 @@ the TUN route while still bypassing the proxy engine.
 - Stash rule types docs: https://stash.wiki/en/rules/rule-types
 - Shadowrocket App Store feature list: https://apps.apple.com/app/shadowrocket/id932747118
 - Shadowrocket list practice: https://github.com/blackmatrix7/ios_rule_script/tree/master/rule/Shadowrocket
+- Asuswrt-Merlin Addons API: https://github.com/RMerl/asuswrt-merlin/wiki/Addons-API

@@ -24,11 +24,14 @@ RULE_PRIORITY=${RULE_PRIORITY:-10100}
 DNS_SERVERS=${DNS_SERVERS:-${DNS_SERVER:-127.0.0.1}}
 CACHE_FILE=${CACHE_FILE:-/jffs/configs/ru-restricted-services.list}
 STATE_FILE=${STATE_FILE:-/tmp/ru-restricted-services.ips}
+STATUS_MAP_FILE=${STATUS_MAP_FILE:-/tmp/ru-restricted-services.map}
+STATUS_JS=${STATUS_JS:-/www/user/ru-restricted-services-status.js}
 LOCK_DIR=${LOCK_DIR:-/tmp/ru-restricted-services.lock}
 TMP_PREFIX=/tmp/ru-restricted-services.$$
 
 cleanup() {
-  rm -f "$TMP_PREFIX.rules" "$TMP_PREFIX.domains" "$TMP_PREFIX.ips"
+  rm -f "$TMP_PREFIX.rules" "$TMP_PREFIX.domains" "$TMP_PREFIX.ips" \
+    "$TMP_PREFIX.answers" "$TMP_PREFIX.map" "$TMP_PREFIX.status.js"
   rmdir "$LOCK_DIR" 2>/dev/null || true
 }
 
@@ -65,16 +68,25 @@ if [ ! -s "$TMP_PREFIX.domains" ]; then
 fi
 
 : > "$TMP_PREFIX.ips"
+: > "$TMP_PREFIX.map"
 while IFS= read -r domain; do
+  : > "$TMP_PREFIX.answers"
   for dns_server in $DNS_SERVERS; do
     nslookup "$domain" "$dns_server" 2>/dev/null \
       | awk '/^Name:/ { answer = 1; next } answer && /^Address [0-9]+: / { print $3 }' \
       | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' \
-      >> "$TMP_PREFIX.ips"
+      >> "$TMP_PREFIX.answers"
   done
+  sort -u "$TMP_PREFIX.answers" -o "$TMP_PREFIX.answers"
+  while IFS= read -r ip; do
+    [ -n "$ip" ] || continue
+    printf '%s\t%s\n' "$domain" "$ip" >> "$TMP_PREFIX.map"
+    printf '%s\n' "$ip" >> "$TMP_PREFIX.ips"
+  done < "$TMP_PREFIX.answers"
 done < "$TMP_PREFIX.domains"
 
 sort -u "$TMP_PREFIX.ips" -o "$TMP_PREFIX.ips"
+sort -u "$TMP_PREFIX.map" -o "$TMP_PREFIX.map"
 
 if [ ! -s "$TMP_PREFIX.ips" ]; then
   logger -t ru-restricted-routes "DNS returned no IPv4 addresses; keeping existing rules"
@@ -101,4 +113,54 @@ while IFS= read -r ip; do
 done < "$STATE_FILE"
 
 cp "$TMP_PREFIX.ips" "$STATE_FILE"
+cp "$TMP_PREFIX.map" "$STATUS_MAP_FILE"
+
+write_status_js() {
+  [ -d "${STATUS_JS%/*}" ] || return 0
+
+  checked_at=$(date '+%Y-%m-%d %H:%M:%S %Z')
+  route_iface=$(ip route show table "$ROUTE_TABLE" 2>/dev/null \
+    | awk '/^default / { for (i = 1; i <= NF; i++) if ($i == "dev") { print $(i + 1); exit } }')
+  tunnel_state=down
+  if [ -n "$route_iface" ] && ip link show "$route_iface" 2>/dev/null | grep -q 'UP'; then
+    tunnel_state=up
+  fi
+
+  active_rules=0
+  while IFS= read -r ip; do
+    if ip rule show | grep -qF "from $SOURCE_IP to $ip lookup $ROUTE_TABLE"; then
+      active_rules=$((active_rules + 1))
+    fi
+  done < "$STATE_FILE"
+
+  {
+    printf 'window.ruRestrictedStatus = {'
+    printf '"checkedAt":"%s",' "$checked_at"
+    printf '"sourceCidr":"%s",' "$SOURCE_CIDR"
+    printf '"routeTable":"%s",' "$ROUTE_TABLE"
+    printf '"routeInterface":"%s",' "$route_iface"
+    printf '"tunnelState":"%s",' "$tunnel_state"
+    printf '"activeRules":%s,' "$active_rules"
+    printf '"resolvedIps":%s,' "$(wc -l < "$STATE_FILE" | tr -d ' ')"
+    printf '"domains":['
+    first_domain=1
+    while IFS= read -r domain; do
+      [ -n "$domain" ] || continue
+      [ "$first_domain" -eq 1 ] || printf ','
+      first_domain=0
+      printf '{"name":"%s","ips":[' "$domain"
+      first_ip=1
+      awk -F '\t' -v domain="$domain" '$1 == domain { print $2 }' "$STATUS_MAP_FILE" \
+        | while IFS= read -r ip; do
+            [ "$first_ip" -eq 1 ] || printf ','
+            first_ip=0
+            printf '"%s"' "$ip"
+          done
+      printf ']}'
+    done < "$TMP_PREFIX.domains"
+    printf ']};\n'
+  } > "$TMP_PREFIX.status.js" && mv "$TMP_PREFIX.status.js" "$STATUS_JS"
+}
+
+write_status_js || logger -t ru-restricted-routes "failed to update web status"
 logger -t ru-restricted-routes "active IPv4 routes: $(wc -l < "$STATE_FILE" | tr -d ' ')"
