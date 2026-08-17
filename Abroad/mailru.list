@@ -1,4 +1,6 @@
-# Mail.ru domains for abroad profiles.
+# Mail.ru media family for abroad profiles.
+# Keep related roots here when a service is presented on a sibling domain
+# such as sportmail.ru rather than under *.mail.ru.
 DOMAIN-SUFFIX,imgsmail.ru
 DOMAIN-SUFFIX,mail.ru
 DOMAIN-SUFFIX,sportmail.ru
