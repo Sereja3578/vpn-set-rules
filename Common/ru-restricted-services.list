@@ -11,3 +11,8 @@ DOMAIN,ingos.ru
 DOMAIN,www.ingos.ru
 DOMAIN,eirc.spb.ru
 DOMAIN,ikus.pesc.ru
+# Root domains also used by the router's exact-domain DNS updater.
+DOMAIN,mail.ru
+DOMAIN,imgsmail.ru
+DOMAIN,sportmail.ru
+DOMAIN,mycdn.me
